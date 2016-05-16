@@ -147,7 +147,8 @@ def breakime(text):
             answer2 += ' '
     answers.append((answer1, 'Pinyin'))
     answers.append((answer2, 'Bopomofo'))
-    return answers
+    if answer1:
+        return answers
 
 def handle_api_update(d: dict):
     logger_botapi.debug('Update: %r' % d)
