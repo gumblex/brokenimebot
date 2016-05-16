@@ -23,37 +23,7 @@ import threading
 import concurrent.futures
 
 import jieba
-import zhconv
-from pypinyin import lazy_pinyin
-
-bopomofo_replace = (
-(re.compile('^m(\d)$'), 'mu\\1'),  # 呣
-(re.compile('^r5$'), 'er5'),  # 〜兒
-(re.compile('iu'), 'iou'),
-(re.compile('ui'), 'uei'),
-(re.compile('ong'), 'ung'),
-(re.compile('^yi?'), 'i'),
-(re.compile('^wu?'), 'u'),
-(re.compile('iu'), 'v'),
-(re.compile('^([jqx])u'), '\\1v'),
-(re.compile('([iuv])n'), '\\1en'),
-(re.compile('^zhi?'), 'Z'),
-(re.compile('^chi?'), 'C'),
-(re.compile('^shi?'), 'S'),
-(re.compile('^([zcsr])i'), '\\1'),
-(re.compile('ai'), 'A'),
-(re.compile('ei'), 'I'),
-(re.compile('ao'), 'O'),
-(re.compile('ou'), 'U'),
-(re.compile('ang'), 'K'),
-(re.compile('eng'), 'G'),
-(re.compile('an'), 'M'),
-(re.compile('en'), 'N'),
-(re.compile('er'), 'R'),
-(re.compile('eh'), 'E'),
-(re.compile('([iv])e'), '\\1E'),
-)
-bopomofo_table = str.maketrans('bpmfdtnlgkhjqxZCSrzcsiuvaoeEAIOUMNKGR2345', 'ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄧㄨㄩㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦˊˇˋ˙')
+import brokenime
 
 logging.basicConfig(stream=sys.stderr, format='%(asctime)s [%(name)s:%(levelname)s] %(message)s', level=logging.DEBUG if sys.argv[-1] == '-v' else logging.INFO)
 
@@ -123,48 +93,13 @@ def getupdates():
                 MSG_Q.put(upd)
         time.sleep(.2)
 
-def translate_bopomofo(pinyin):
-    out = pinyin
-    for f, r in bopomofo_replace:
-        out = f.sub(r, out)
-    return out.translate(bopomofo_table)
-
-ime_pinyin = lazy_pinyin
-ime_zhuyin = lambda s: list(map(translate_bopomofo, lazy_pinyin(s)))
-
-def breakime(text):
-    answers = []
-    answer1 = ''
-    answer2 = ''
-    for word in jieba.cut(text):
-        word = word.strip()
-        if word:
-            pinyinl = lazy_pinyin(word)
-            if pinyinl[0] == word:
-                answer1 += word
-                answer2 += word
-            else:
-                zhuyin = ' '.join(bopomofo(p) for p in pinyinl)
-                pinyin = ' '.join(pinyinl)
-                answer1 += ''.join(pinyin[:i+1] for i in range(len(pinyin))) + word
-                answer2 += ''.join(zhuyin[:i+1] for i in range(len(zhuyin))) + word
-        else:
-            answer1 += ' '
-            answer2 += ' '
-    if answer1:
-        if zhconv.issimp(text, True) is not False:
-            answers = [(answer1, 'Pinyin'), (answer2, 'Bopomofo')]
-        else:
-            answers = [(answer2, 'Bopomofo'), (answer1, 'Pinyin')]
-        return answers
-
 def handle_api_update(d: dict):
     logger_botapi.debug('Update: %r' % d)
     try:
         if 'inline_query' in d:
             query = d['inline_query']
             text = query['query'].strip()
-            imeresult = breakime(text)
+            imeresult = brokenime.breakime(text)
             if imeresult:
                 r = answer(query['id'], [{'type': 'article', 'id': str(time.time()), 'title': ret, 'input_message_content': {'message_text': ret}, 'description': desc} for desc, ret in imeresult])
                 logger_botapi.debug(r)

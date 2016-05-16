@@ -13,7 +13,7 @@ PATH = 'data'
 
 _fill_lock = RLock()
 
-class LazyDict(collections.UserDict):
+class LazyDict(collections.Mapping):
     """Dictionary populated on first use."""
     data = None
     def __getitem__(self, key):
@@ -84,7 +84,7 @@ class ReverseLookupTable(LazyDict):
         started = False
         with open(self.dictfile, 'r', encoding='utf-8') as f:
             for ln in f:
-                ln = ln.strip()
+                ln = ln.rstrip()
                 if started and ln and ln[0] != '#':
                     l = ln.split('\t')
                     # we assume one-to-one correspondence

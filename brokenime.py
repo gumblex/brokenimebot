@@ -14,7 +14,7 @@ enabled_imes = {
     'Bopomofo': imelookup.ime_zhuyin,
     'Cangjie5': imelookup.ime_cangjie5,
     'Wubi86': imelookup.ime_wubi86,
-    'Strokes': imelookup.ime_stroke
+    #'Strokes': imelookup.ime_stroke
 }
 default_order = [
     ('Pinyin', 'Strokes', 'Wubi86', 'Bopomofo', 'Cangjie5'),
@@ -37,7 +37,6 @@ def breakime(text):
                 word = ' '
             for k in answers:
                 answers[k] += word
-    print(imelookup.table_cangjie5)
     return sorted(answers.items(), key=lambda x: default_order[zhconv.issimp(text, True) is not True].index(x[0]))
 
 
