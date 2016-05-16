@@ -27,14 +27,14 @@ from pypinyin import lazy_pinyin
 
 bopomofo_replace = (
 (re.compile('e?r5$'), 'er5'),
-(re.compile('([jqx])u'), '$1v'),
+(re.compile('([jqx])u'), r'\1v'),
 (re.compile('yu'), 'v'),
 (re.compile('yi?'), 'i'),
 (re.compile('wu?'), 'u'),
 (re.compile('iu'), 'iou'),
 (re.compile('ui'), 'uei'),
 (re.compile('ong'), 'ung'),
-(re.compile('([iu])n'), '$1en'),
+(re.compile('([iu])n'), r'\1en'),
 (re.compile('zh'), 'Z'),
 (re.compile('ch'), 'C'),
 (re.compile('sh'), 'S'),
@@ -48,7 +48,7 @@ bopomofo_replace = (
 (re.compile('en'), 'N'),
 (re.compile('er'), 'R'),
 (re.compile('eh'), 'E'),
-(re.compile('([iv])e'), '$1E'),
+(re.compile('([iv])e'), r'\1E'),
 (re.compile('1'), '')
 )
 bopomofo_table = str.maketrans('bpmfdtnlgkhjqxZCSrzcsiuvaoeEAIOUMNKGR2345', 'ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄧㄨㄩㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦˊˇˋ˙')
