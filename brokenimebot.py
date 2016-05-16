@@ -149,10 +149,10 @@ def breakime(text):
             answer1 += ' '
             answer2 += ' '
     if answer1:
-        if not zhconv.issimp(text, True):
-            answers = [(answer2, 'Bopomofo'), (answer1, 'Pinyin')]
-        else:
+        if zhconv.issimp(text, True) is not False:
             answers = [(answer1, 'Pinyin'), (answer2, 'Bopomofo')]
+        else:
+            answers = [(answer2, 'Bopomofo'), (answer1, 'Pinyin')]
         return answers
 
 def handle_api_update(d: dict):
