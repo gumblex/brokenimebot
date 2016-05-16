@@ -163,8 +163,7 @@ def handle_api_update(d: dict):
             text = query['query'].strip()
             imeresult = breakime(text)
             if imeresult:
-                r = answer(query['id'], [{'type': 'article', 'id': str(time.time()), 'title': imeresult[0][0], 'input_message_content': {'message_text': imeresult[0][0]}}])
-                #r = answer(query['id'], [{'type': 'article', 'id': str(time.time()), 'title': ret, 'input_message_content': {'message_text': ret}, 'description': desc} for ret, desc in imeresult])
+                r = answer(query['id'], [{'type': 'article', 'id': str(time.time()), 'title': ret, 'input_message_content': {'message_text': ret}, 'description': desc} for ret, desc in imeresult])
                 logger_botapi.debug(r)
                 logger_botapi.info('%s -> %s', text, imeresult)
         elif 'message' in d:
