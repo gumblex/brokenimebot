@@ -15,9 +15,7 @@ import sys
 import time
 import json
 import queue
-import base64
 import logging
-import hashlib
 import requests
 import functools
 import threading
@@ -113,8 +111,7 @@ def handle_api_update(d: dict):
             text = query['query'].strip()
             imeresult = breakime(text)
             if imeresult:
-                textid = base64.b64encode(hashlib.sha256(imeresult.encode('utf-8')).digest()).decode('ascii')
-                r = answer(query['id'], [{'type': 'article', 'id': textid, 'title': imeresult, 'input_message_content': {'message_text': imeresult}}])
+                r = answer(query['id'], [{'type': 'article', 'id': str(time.time()), 'title': imeresult, 'input_message_content': {'message_text': imeresult}}])
                 logger_botapi.debug(r)
                 logger_botapi.info('%s -> %s', text, imeresult)
         elif 'message' in d:
