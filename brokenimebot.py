@@ -23,21 +23,24 @@ import threading
 import concurrent.futures
 
 import jieba
+import zhconv
 from pypinyin import lazy_pinyin
 
 bopomofo_replace = (
-(re.compile('e?r5$'), 'er5'),
-(re.compile('([jqx])u'), r'\1v'),
-(re.compile('yu'), 'v'),
-(re.compile('yi?'), 'i'),
-(re.compile('wu?'), 'u'),
+(re.compile('^m(\d)$'), 'mu\\1'),  # 呣
+(re.compile('^r5$'), 'er5'),  # 〜兒
 (re.compile('iu'), 'iou'),
 (re.compile('ui'), 'uei'),
 (re.compile('ong'), 'ung'),
-(re.compile('([iu])n'), r'\1en'),
-(re.compile('zh'), 'Z'),
-(re.compile('ch'), 'C'),
-(re.compile('sh'), 'S'),
+(re.compile('^yi?'), 'i'),
+(re.compile('^wu?'), 'u'),
+(re.compile('iu'), 'v'),
+(re.compile('^([jqx])u'), '\\1v'),
+(re.compile('([iuv])n'), '\\1en'),
+(re.compile('^zhi?'), 'Z'),
+(re.compile('^chi?'), 'C'),
+(re.compile('^shi?'), 'S'),
+(re.compile('^([zcsr])i'), '\\1'),
 (re.compile('ai'), 'A'),
 (re.compile('ei'), 'I'),
 (re.compile('ao'), 'O'),
@@ -48,8 +51,7 @@ bopomofo_replace = (
 (re.compile('en'), 'N'),
 (re.compile('er'), 'R'),
 (re.compile('eh'), 'E'),
-(re.compile('([iv])e'), r'\1E'),
-(re.compile('1'), '')
+(re.compile('([iv])e'), '\\1E'),
 )
 bopomofo_table = str.maketrans('bpmfdtnlgkhjqxZCSrzcsiuvaoeEAIOUMNKGR2345', 'ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄧㄨㄩㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦˊˇˋ˙')
 
@@ -134,20 +136,23 @@ def breakime(text):
     for word in jieba.cut(text):
         word = word.strip()
         if word:
-            pinyin = ' '.join(lazy_pinyin(word))
-            if pinyin == word:
+            pinyinl = lazy_pinyin(word)
+            if pinyinl[0] == word:
                 answer1 += word
                 answer2 += word
             else:
+                zhuyin = ' '.join(bopomofo(p) for p in pinyinl)
+                pinyin = ' '.join(pinyinl)
                 answer1 += ''.join(pinyin[:i+1] for i in range(len(pinyin))) + word
-                zhuyin = bopomofo(pinyin)
                 answer2 += ''.join(zhuyin[:i+1] for i in range(len(zhuyin))) + word
         else:
             answer1 += ' '
             answer2 += ' '
-    answers.append((answer1, 'Pinyin'))
-    answers.append((answer2, 'Bopomofo'))
     if answer1:
+        if not zhconv.issimp(text, True):
+            answers = [(answer2, 'Bopomofo'), (answer1, 'Pinyin')]
+        else:
+            answers = [(answer1, 'Pinyin'), (answer2, 'Bopomofo')]
         return answers
 
 def handle_api_update(d: dict):
