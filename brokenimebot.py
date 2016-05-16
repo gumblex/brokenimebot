@@ -123,11 +123,14 @@ def getupdates():
                 MSG_Q.put(upd)
         time.sleep(.2)
 
-def bopomofo(pinyin):
+def translate_bopomofo(pinyin):
     out = pinyin
     for f, r in bopomofo_replace:
         out = f.sub(r, out)
     return out.translate(bopomofo_table)
+
+ime_pinyin = lazy_pinyin
+ime_zhuyin = lambda s: list(map(translate_bopomofo, lazy_pinyin(s)))
 
 def breakime(text):
     answers = []
@@ -163,7 +166,7 @@ def handle_api_update(d: dict):
             text = query['query'].strip()
             imeresult = breakime(text)
             if imeresult:
-                r = answer(query['id'], [{'type': 'article', 'id': str(time.time()), 'title': ret, 'input_message_content': {'message_text': ret}, 'description': desc} for ret, desc in imeresult])
+                r = answer(query['id'], [{'type': 'article', 'id': str(time.time()), 'title': ret, 'input_message_content': {'message_text': ret}, 'description': desc} for desc, ret in imeresult])
                 logger_botapi.debug(r)
                 logger_botapi.info('%s -> %s', text, imeresult)
         elif 'message' in d:
