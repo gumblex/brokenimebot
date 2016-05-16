@@ -11,6 +11,7 @@ To Public License, Version 2, as published by Sam Hocevar. See
 http://www.wtfpl.net/ for more details.
 '''
 
+import re
 import sys
 import time
 import json
@@ -23,6 +24,34 @@ import concurrent.futures
 
 import jieba
 from pypinyin import lazy_pinyin
+
+bopomofo_replace = (
+(re.compile('e?r5$'), 'er5'),
+(re.compile('([jqx])u'), '$1v'),
+(re.compile('yu'), 'v'),
+(re.compile('yi?'), 'i'),
+(re.compile('wu?'), 'u'),
+(re.compile('iu'), 'iou'),
+(re.compile('ui'), 'uei'),
+(re.compile('ong'), 'ung'),
+(re.compile('([iu])n'), '$1en'),
+(re.compile('zh'), 'Z'),
+(re.compile('ch'), 'C'),
+(re.compile('sh'), 'S'),
+(re.compile('ai'), 'A'),
+(re.compile('ei'), 'I'),
+(re.compile('ao'), 'O'),
+(re.compile('ou'), 'U'),
+(re.compile('ang'), 'K'),
+(re.compile('eng'), 'G'),
+(re.compile('an'), 'M'),
+(re.compile('en'), 'N'),
+(re.compile('er'), 'R'),
+(re.compile('eh'), 'E'),
+(re.compile('([iv])e'), '$1E'),
+(re.compile('1'), '')
+)
+bopomofo_table = str.maketrans('bpmfdtnlgkhjqxZCSrzcsiuvaoeEAIOUMNKGR2345', 'ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄧㄨㄩㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦˊˇˋ˙')
 
 logging.basicConfig(stream=sys.stderr, format='%(asctime)s [%(name)s:%(levelname)s] %(message)s', level=logging.DEBUG if sys.argv[-1] == '-v' else logging.INFO)
 
@@ -92,7 +121,14 @@ def getupdates():
                 MSG_Q.put(upd)
         time.sleep(.2)
 
+def bopomofo(pinyin):
+    out = pinyin
+    for f, r in bopomofo_table:
+        out = f.sub(r, out)
+    return out.translate(bopomofo_table)
+
 def breakime(text):
+    answers = []
     answer = ''
     for word in jieba.cut(text):
         word = word.strip()
@@ -104,7 +140,9 @@ def breakime(text):
                 answer += ''.join(pinyin[:i+1] for i in range(len(pinyin))) + word
         else:
             answer += ' '
-    return answer
+    answers.append((answer, 'Pinyin'))
+    answers.append((bopomofo(answer), 'Bopomofo'))
+    return answers
 
 def handle_api_update(d: dict):
     logger_botapi.debug('Update: %r' % d)
@@ -114,7 +152,7 @@ def handle_api_update(d: dict):
             text = query['query'].strip()
             imeresult = breakime(text)
             if imeresult:
-                r = answer(query['id'], [{'type': 'article', 'id': str(time.time()), 'title': imeresult, 'input_message_content': {'message_text': imeresult}}])
+                r = answer(query['id'], [{'type': 'article', 'id': str(time.time()), 'title': ret, 'input_message_content': {'message_text': ret}, 'description': desc} for ret, desc in imeresult])
                 logger_botapi.debug(r)
                 logger_botapi.info('%s -> %s', text, imeresult)
         elif 'message' in d:
