@@ -129,19 +129,24 @@ def bopomofo(pinyin):
 
 def breakime(text):
     answers = []
-    answer = ''
+    answer1 = ''
+    answer2 = ''
     for word in jieba.cut(text):
         word = word.strip()
         if word:
             pinyin = ' '.join(lazy_pinyin(word))
             if pinyin == word:
-                answer += word
+                answer1 += word
+                answer2 += word
             else:
-                answer += ''.join(pinyin[:i+1] for i in range(len(pinyin))) + word
+                answer1 += ''.join(pinyin[:i+1] for i in range(len(pinyin))) + word
+                zhuyin = bopomofo(pinyin)
+                answer2 += ''.join(zhuyin[:i+1] for i in range(len(zhuyin))) + word
         else:
-            answer += ' '
-    answers.append((answer, 'Pinyin'))
-    answers.append((bopomofo(answer), 'Bopomofo'))
+            answer1 += ' '
+            answer2 += ' '
+    answers.append((answer1, 'Pinyin'))
+    answers.append((answer2, 'Bopomofo'))
     return answers
 
 def handle_api_update(d: dict):
