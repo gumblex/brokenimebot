@@ -123,7 +123,7 @@ def getupdates():
 
 def bopomofo(pinyin):
     out = pinyin
-    for f, r in bopomofo_table:
+    for f, r in bopomofo_replace:
         out = f.sub(r, out)
     return out.translate(bopomofo_table)
 
