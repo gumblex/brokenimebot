@@ -107,7 +107,7 @@ def handle_api_update(d: dict):
         elif 'message' in d:
             msg = d['message']
             if msg['chat']['type'] == 'private':
-                imeresult = breakime(msg.get('text', '').strip())
+                imeresult = brokenime.breakime(msg.get('text', '').strip())
                 if imeresult:
                     bot_api('sendMessage', chat_id=msg['chat']['id'], text=imeresult, reply_to_message_id=msg['message_id'])
     except Exception:
