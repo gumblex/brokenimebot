@@ -10,6 +10,10 @@ def breakime(text):
         word = word.strip()
         if word:
             pinyin = ' '.join(lazy_pinyin(word))
+            if pinyin == word:
+                answer += word
+            else:
+                answer += ''.join(pinyin[:i+1] for i in range(len(pinyin))) + word
             answer += ''.join(pinyin[:i+1] for i in range(len(pinyin))) + word
         else:
             answer += ' '
