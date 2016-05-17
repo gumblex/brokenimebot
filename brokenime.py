@@ -22,7 +22,7 @@ default_order = [
 ]
 
 def break_scheme(word, ime):
-    code = enabled_imes[k](word)
+    code = enabled_imes[ime](word)
     if ime == 'Bopomofo':
         codecat = ''.join(code)
         return ''.join(codecat[:i+1]*3 for i in range(len(codecat))) + word
