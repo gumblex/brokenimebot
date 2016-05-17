@@ -14,11 +14,11 @@ enabled_imes = {
     'Bopomofo': imelookup.ime_zhuyin,
     'Cangjie5': imelookup.ime_cangjie5,
     'Wubi86': imelookup.ime_wubi86,
-    'Strokes': imelookup.ime_stroke
+    #'Stroke': imelookup.ime_stroke
 }
 default_order = [
-    ('Pinyin', 'Strokes', 'Wubi86', 'Bopomofo', 'Cangjie5'),
-    ('Bopomofo', 'Cangjie5', 'Pinyin', 'Strokes', 'Wubi86')
+    ('Pinyin', 'Stroke', 'Wubi86', 'Bopomofo', 'Cangjie5'),
+    ('Bopomofo', 'Cangjie5', 'Pinyin', 'Stroke', 'Wubi86')
 ]
 
 def break_scheme(word, ime):
