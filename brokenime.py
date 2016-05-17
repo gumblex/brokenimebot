@@ -14,7 +14,7 @@ enabled_imes = {
     'Bopomofo': imelookup.ime_zhuyin,
     'Cangjie5': imelookup.ime_cangjie5,
     'Wubi86': imelookup.ime_wubi86,
-    #'Strokes': imelookup.ime_stroke
+    'Strokes': imelookup.ime_stroke
 }
 default_order = [
     ('Pinyin', 'Strokes', 'Wubi86', 'Bopomofo', 'Cangjie5'),
@@ -22,12 +22,13 @@ default_order = [
 ]
 
 def break_scheme(word, code, ime):
-    codecat = ' '.join(code)
     if ime == 'Bopomofo':
+        codecat = ''.join(code)
         return ''.join(codecat[:i+1]*3 for i in range(len(codecat))) + word
     elif ime == 'Cangjie5':
         return ''.join(code[0][:i+1] for i in range(len(code[0]))) + word
     else:
+        codecat = ' '.join(code)
         return ''.join(codecat[:i+1] for i in range(len(codecat))) + word
 
 def breakime(text):
