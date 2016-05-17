@@ -21,6 +21,15 @@ default_order = [
     ('Bopomofo', 'Cangjie5', 'Pinyin', 'Strokes', 'Wubi86')
 ]
 
+def break_scheme(word, code, ime):
+    codecat = ' '.join(code)
+    if ime == 'Bopomofo':
+        return ''.join(codecat[:i+1]*3 for i in range(len(codecat))) + word
+    elif ime == 'Cangjie5':
+        return ''.join(code[0][:i+1] for i in range(len(code[0]))) + word
+    else:
+        return ''.join(codecat[:i+1] for i in range(len(codecat))) + word
+
 def breakime(text):
     text = text.strip()
     if not text:
@@ -30,8 +39,7 @@ def breakime(text):
         word = word.strip()
         if RE_UCJK.match(word):
             for k in answers:
-                code = ' '.join(enabled_imes[k](word))
-                answers[k] += ''.join(code[:i+1] for i in range(len(code))) + word
+                answers[k] += break_scheme(word, enabled_imes[k](word), k)
         else:
             if not word:
                 word = ' '
