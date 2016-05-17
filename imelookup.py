@@ -142,7 +142,27 @@ ime_cangjie5 = fn_map_code(table_cangjie5, str.maketrans(
     '日月金木水火土竹戈十大中一弓人心手口尸廿山女田難卜符～'))
 table_wubi86 = ReverseLookupTable()
 table_wubi86.dictfile = os.path.join(PATH, 'wubi86.dict.yaml')
-ime_wubi86 = fn_map_code(table_wubi86)
 table_stroke = ReverseLookupTable()
 table_stroke.dictfile = os.path.join(PATH, 'stroke.dict.yaml')
 ime_stroke = fn_map_code(table_stroke, str.maketrans('hspnz', '一丨丿丶乙'))
+
+def ime_wubi86(s):
+    pos = 0
+    ch = []
+    while pos < len(s):
+        flen = len(s) - pos
+        oper = None
+        outword = None
+        while not oper in table_wubi86:
+            if flen < 1:
+                outword = oper
+                oper = None
+                break
+            oper = s[pos:pos + flen]
+            flen -= 1
+        if oper:
+            ch.append(table_wubi86[oper])
+        elif outword:
+            ch.append(outword)
+        pos += flen + 1
+    return ch
