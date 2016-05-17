@@ -109,7 +109,7 @@ def handle_api_update(d: dict):
             if msg['chat']['type'] == 'private':
                 imeresult = brokenime.breakime(msg.get('text', '').strip())
                 if imeresult:
-                    bot_api('sendMessage', chat_id=msg['chat']['id'], text=imeresult, reply_to_message_id=msg['message_id'])
+                    bot_api('sendMessage', chat_id=msg['chat']['id'], text=imeresult[0][1], reply_to_message_id=msg['message_id'])
     except Exception:
         logger_botapi.exception('Failed to process a message.')
 

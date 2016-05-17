@@ -37,7 +37,7 @@ def breakime(text):
                 word = ' '
             for k in answers:
                 answers[k] += word
-    return sorted(answers.items(), key=lambda x: default_order[zhconv.issimp(text, True) is not True].index(x[0]))
+    return sorted(answers.items(), key=lambda x: default_order[zhconv.issimp(text, True) is False].index(x[0]))
 
 
 if __name__ == '__main__':
