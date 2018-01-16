@@ -16,6 +16,7 @@ import sys
 import time
 import json
 import queue
+import random
 import logging
 import requests
 import functools
@@ -31,6 +32,10 @@ logger_botapi = logging.getLogger('botapi')
 
 executor = concurrent.futures.ThreadPoolExecutor(5)
 HSession = requests.Session()
+
+def fake_yubikey(prefix='cccccc'):
+    alphabet = 'cbdefghijklnrtuv'
+    return prefix + ''.join(random.choice(alphabet) for i in range(44 - len(prefix)))
 
 class AttrDict(dict):
 
